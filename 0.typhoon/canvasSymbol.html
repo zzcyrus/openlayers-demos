@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://openlayers.org/en/v4.2.0/css/ol.css" type="text/css">
+    <script src="https://openlayers.org/en/v4.2.0/build/ol.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="map" class="map"></div>
+<script>
+    var layer = new ol.layer.Vector({
+        source: new ol.source.Vector()
+    });
+
+    var map = new ol.Map({
+        layers: [
+            new ol.layer.Tile({
+                source: new ol.source.OSM()
+            }),
+            layer
+        ],
+        target: 'map',
+        view: new ol.View({
+            projection: 'EPSG:4326',
+            center: [158.3, 27.5],
+            zoom: 5
+        })
+    });
+
+    function createTyphoon(radius, radius_quad) {
+        var canvas = document.createElement('canvas');
+        canvas.width = canvas.height = 2 * radius;
+        var context = canvas.getContext("2d");
+        context.fillStyle = "#0000ff";
+        context.strokeStyle = "#ff0000";
+        context.lineWidth = 3;
+        context.beginPath();
+        context.arc(radius, radius, radius_quad.se, 0, 0.5 * Math.PI);
+        context.lineTo(radius, radius + radius_quad.sw);
+        context.arc(radius, radius, radius_quad.sw, 0.5 * Math.PI, Math.PI);
+        context.lineTo(radius - radius_quad.nw, radius);
+        context.arc(radius, radius, radius_quad.nw, Math.PI, 1.5 * Math.PI);
+        context.lineTo(radius, radius - radius_quad.ne);
+        context.arc(radius, radius, radius_quad.ne, 1.5 * Math.PI, 0);
+        context.lineTo(radius + radius_quad.se, radius);
+        context.fill();
+        context.stroke();
+        return canvas;
+    }
+
+    var canvas = createTyphoon(250, {
+        "ne": 250,
+        "se": 250,
+        "sw": 180,
+        "nw": 150
+    });
+
+    // 绑定一个style
+    var style = new ol.style.Style({
+        image: new ol.style.Icon({
+            opacity: 0.3,
+            img: canvas,
+            imgSize: [canvas.width, canvas.height],
+            scale: 0.4
+        })
+    });
+
+    // 绑定到具体的位置点
+    var shape = new ol.Feature({
+        geometry: new ol.geom.Point([158.3, 27.5])
+    });
+
+    // 把点要素和样式进行关联
+    shape.setStyle(style);
+    layer.getSource().addFeature(shape);
+
+    map.getView().on('change:resolution', function () {
+        var style = shape.getStyle();
+        // 重新设置图标的缩放率
+        style.getImage().setScale(this.getZoom() / 8);
+        shape.setStyle(style);
+    })
+
+
+</script>
+</body>
+</html>
