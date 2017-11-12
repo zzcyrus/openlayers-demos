@@ -1,0 +1,15 @@
+{
+  "name": "vector-tile",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node --use_strict app.js"
+  },
+  "author": "zzcyrus",
+  "license": "MIT",
+  "dependencies": {
+    "koa": "2.4.1",
+    "koa-cors": "0.0.16"
+  }
+}

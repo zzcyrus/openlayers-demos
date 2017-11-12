@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>vector-tile-ol</title>
+    <link rel="stylesheet" href="https://openlayers.org/en/v4.4.2/css/ol.css" type="text/css">
+    <script src="https://openlayers.org/en/v4.4.2/build/ol.js"></script>
+</head>
+<body>
+<div id="map" class="map"></div>
+<script>
+
+    var map = new ol.Map({
+        layers: [
+            new ol.layer.Tile({
+                source: new ol.source.XYZ({
+                    url: "http://t0.tianditu.com/DataServer?T=ter_w&x={x}&y={y}&l={z}"
+                })
+            })
+        ],
+        target: 'map',
+        view: new ol.View({
+            center: [0, 0],
+            zoom: 3
+        })
+    });
+
+
+    var vectorSource = new ol.source.VectorTile({
+        format: new ol.format.GeoJSON({
+            defaultDataProjection: new ol.proj.Projection({
+                code: 'TILE_PIXELS',
+                units: 'tile-pixels'
+            })
+        }),
+        url: 'http://localhost:3000/gettile/{z}/{x}/{y}.vector',
+    });
+
+    var vectorLayer = new ol.layer.VectorTile({
+        source: vectorSource
+    });
+    map.addLayer(vectorLayer);
+    var select = new ol.interaction.Select({
+        condition: ol.events.condition.pointerMove,
+        style: new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: '#ff0000',
+                width: 4
+            })
+        }),
+        layers: [vectorLayer]
+    })
+    map.addInteraction(select);
+
+
+</script>
+</body>
+</html>
